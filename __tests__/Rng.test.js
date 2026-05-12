@@ -25,3 +25,16 @@ test('restores deterministic state from a snapshot', () => {
   resumed.restore(snapshot);
   expect(resumed.next()).toBe(nextBeforeRestore);
 });
+
+test('handles chance boundaries, sampling, invalid seeds, and bad restore payloads', () => {
+  const rng = new Rng('not-a-number');
+
+  expect(rng.chance(0)).toBe(false);
+  expect(rng.chance(100)).toBe(true);
+  expect(rng.sample([])).toBeUndefined();
+  expect(rng.sample('bad')).toBeUndefined();
+  expect(['a', 'b']).toContain(rng.sample(['a', 'b']));
+
+  rng.restore({ state: Number.NaN, initialSeed: Number.NaN });
+  expect(Number.isFinite(rng.state)).toBe(true);
+});

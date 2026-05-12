@@ -1,15 +1,17 @@
 {
   "name": "jest-another-rpg",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "CLI-first RPG engine with deterministic gameplay systems and save/load support",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "test": "jest --runInBand",
     "coverage": "jest --coverage --runInBand",
+    "smoke": "node scripts/smoke.js",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
-    "check": "npm run lint && npm test"
+    "check": "npm run lint && npm test",
+    "ci": "npm run lint && npm test && npm run coverage && npm run smoke"
   },
   "repository": {
     "type": "git",
@@ -25,7 +27,7 @@
     "lib": "lib"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "devDependencies": {
     "eslint": "^8.57.1",

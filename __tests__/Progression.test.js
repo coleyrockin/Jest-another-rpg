@@ -25,3 +25,43 @@ test('returns active quest templates', () => {
   expect(Array.isArray(quests)).toBe(true);
   expect(quests.length).toBeGreaterThan(0);
 });
+
+test('supports multi-level unlock progression', () => {
+  const rng = new Rng(222);
+  const player = new Player('Riley', 'mage', rng);
+
+  const outcome = progression.gainXp(player, 1000, rng);
+
+  expect(outcome.levelDelta).toBeGreaterThan(1);
+  expect(outcome.unlocked).toEqual(expect.arrayContaining(['combat_rush']));
+  expect(player.unlockedLevel3).toBe(true);
+});
+
+test('quest progress grants rewards and resets no-hit streaks', () => {
+  const rng = new Rng(333);
+  const player = new Player('Questor', 'rogue', rng);
+  const quests = progression.defaultQuests();
+
+  expect(
+    progression.applyQuestProgress(quests, { type: 'enemy_defeated', isBoss: false }, player)
+  ).toEqual([]);
+  expect(
+    progression.applyQuestProgress(quests, { type: 'enemy_defeated', isBoss: false }, player)
+  ).toEqual(['defeat-two']);
+  expect(quests.find((quest) => quest.id === 'defeat-two').completed).toBe(true);
+
+  progression.applyQuestProgress(quests, { type: 'no_damage_round' }, player);
+  progression.applyQuestProgress(quests, { type: 'no_damage_round' }, player);
+  progression.applyQuestProgress(quests, { type: 'damaged_by_enemy' }, player);
+  expect(quests.find((quest) => quest.id === 'no-hit-streak').progress).toBe(0);
+
+  progression.applyQuestProgress(quests, { type: 'no_damage_round' }, player);
+  progression.applyQuestProgress(quests, { type: 'no_damage_round' }, player);
+  const streakReward = progression.applyQuestProgress(quests, { type: 'no_damage_round' }, player);
+  expect(streakReward).toEqual(['no-hit-streak']);
+  expect(player.inventory.some((item) => item.id === 'strength')).toBe(true);
+
+  expect(
+    progression.applyQuestProgress(quests, { type: 'enemy_defeated', isBoss: true }, player)
+  ).toEqual(['boss-tier']);
+});

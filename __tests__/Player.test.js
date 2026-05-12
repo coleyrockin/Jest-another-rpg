@@ -26,6 +26,23 @@ test('supports stack-aware quantity behavior', () => {
   expect(player.inventory[0].quantity).toBe(1);
 });
 
+test('stacks added consumables and rejects invalid potion slots', () => {
+  const player = new Player('Maya', 'warrior');
+  player.inventory = [];
+
+  expect(player.getInventory()).toBe(false);
+  expect(player.usePotion(99)).toBeNull();
+
+  player.addItem('health');
+  player.addItem('health');
+  expect(player.inventory).toHaveLength(1);
+  expect(player.inventory[0].quantity).toBe(2);
+
+  player.addPotion('agility');
+  expect(player.inventory.some((item) => item.id === 'agility')).toBe(true);
+  expect(player.getClassPower()).toBe(player.classStats);
+});
+
 test('persists unlocked progression flags', () => {
   const player = new Player('Maya', 'warrior');
   player.unlockedLevel3 = true;

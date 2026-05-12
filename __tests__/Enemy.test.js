@@ -40,3 +40,25 @@ test('boss loot includes a guaranteed defender reward', () => {
   expect(drops.map((item) => item.id)).toContain('defender');
   expect(drops).toHaveLength(2);
 });
+
+test('enemy save and restore preserves combat metadata', () => {
+  const enemy = new Enemy({
+    name: 'captain',
+    weapon: 'spear',
+    aiProfile: 'opportunist',
+    level: 3,
+    attackMultiplier: 1.2,
+    xpReward: 99,
+    lootTable: ['health'],
+  });
+
+  const restored = Enemy.fromSave(enemy.toSave());
+
+  expect(restored.toSave()).toMatchObject({
+    name: 'captain',
+    weapon: 'spear',
+    aiProfile: 'opportunist',
+    level: 3,
+    xpReward: 99,
+  });
+});

@@ -3,6 +3,7 @@
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white)
 ![Jest](https://img.shields.io/badge/Jest-C21325?style=flat&logo=jest&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
+![CI](https://github.com/coleyrockin/Jest-another-rpg/actions/workflows/ci.yml/badge.svg)
 
 CLI-first RPG engine built with deterministic gameplay systems, class progression, combat services, inventory, quests, and resumable save files.
 
@@ -12,7 +13,7 @@ This started as a small Jest practice project. It is now structured like a real 
 
 Requirements:
 
-- Node.js `>=16`
+- Node.js `>=18`
 - npm
 
 ```bash
@@ -118,17 +119,40 @@ Storage behavior:
 ```bash
 npm start        # run the CLI
 npm test         # run Jest tests
+npm run coverage # run Jest with enforced coverage gates
+npm run smoke    # run scripted CLI/product smoke checks
 npm run lint     # run ESLint
 npm run check    # lint + tests
+npm run ci       # lint + tests + coverage + smoke
 npm run format   # apply Prettier
 ```
 
 Current quality gate:
 
-- 9 Jest suites.
+- 15 Jest suites.
 - Deterministic RNG tests.
 - Combat, progression, player, enemy, potion, storage, CLI, and integration tests.
-- `npm run check` is the release gate.
+- Coverage thresholds: `75%` statements, `75%` lines, `70%` functions, `65%` branches.
+- `npm run ci` is the release gate.
+
+## Release Checklist
+
+Run these before tagging a release:
+
+```bash
+npm run format
+npm run ci
+npm start -- --help
+git status --short --branch
+```
+
+Release steps:
+
+1. Confirm version and changelog are updated.
+2. Confirm `main` is aligned with `origin/main`.
+3. Commit release changes.
+4. Tag the release, for example `git tag v1.2.0`.
+5. Push `main` and the release tag.
 
 ## Roadmap
 
@@ -136,7 +160,7 @@ Current quality gate:
 - Add map-level world progression.
 - Add replay export/import from seeds and RNG snapshots.
 - Add richer quest chains with class-specific rewards.
-- Add optional coverage thresholds once the system stabilizes.
+- Add optional generated release notes.
 
 ## Contribution Rules
 

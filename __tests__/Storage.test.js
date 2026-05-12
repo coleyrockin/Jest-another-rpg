@@ -80,6 +80,74 @@ test('throws recoverable error for corrupted JSON', async () => {
   await storage.deleteSave();
 });
 
+test('throws clear errors for missing save, invalid payload, checksum mismatch, and missing player', async () => {
+  const missingFile = path.join(__dirname, 'tmp-save-missing.json');
+  const missing = new StorageService({ savePath: missingFile });
+  await expect(missing.loadGame()).rejects.toMatchObject({
+    message: 'No save file found.',
+    recoverable: false,
+  });
+
+  const invalidFile = path.join(__dirname, 'tmp-save-invalid.json');
+  const invalid = new StorageService({ savePath: invalidFile });
+  await fs.promises.writeFile(invalidFile, 'null', 'utf8');
+  await expect(invalid.loadGame()).rejects.toMatchObject({
+    message: 'Invalid save file',
+    recoverable: true,
+  });
+  await invalid.deleteSave();
+
+  const noPlayerFile = path.join(__dirname, 'tmp-save-no-player.json');
+  const noPlayer = new StorageService({ savePath: noPlayerFile });
+  await fs.promises.writeFile(noPlayerFile, JSON.stringify({ version: 1, seed: 1 }), 'utf8');
+  await expect(noPlayer.loadGame()).rejects.toMatchObject({
+    message: 'Save file is missing player data',
+    recoverable: false,
+  });
+  await noPlayer.deleteSave();
+
+  const checksumFile = path.join(__dirname, 'tmp-save-checksum.json');
+  const checksum = new StorageService({ savePath: checksumFile });
+  await checksum.saveGame({
+    seed: 77,
+    player: { name: 'Checksum' },
+    roundNumber: 0,
+    activeEncounter: null,
+    quests: [],
+  });
+  const payload = JSON.parse(await fs.promises.readFile(checksumFile, 'utf8'));
+  payload.player.name = 'Tampered';
+  await fs.promises.writeFile(checksumFile, JSON.stringify(payload, null, 2), 'utf8');
+  await expect(checksum.loadGame()).rejects.toMatchObject({
+    message: 'Save file appears to be corrupted',
+    recoverable: true,
+  });
+  await checksum.deleteSave();
+});
+
+test('migrates version zero saves with defaults', async () => {
+  const file = path.join(__dirname, 'tmp-save-v0.json');
+  const storage = new StorageService({ savePath: file });
+  await fs.promises.writeFile(
+    file,
+    JSON.stringify({
+      version: 0,
+      seed: 'not-a-number',
+      player: { name: 'Zero Hero' },
+    }),
+    'utf8'
+  );
+
+  const loaded = await storage.loadGame();
+
+  expect(loaded.version).toBe(1);
+  expect(Number.isFinite(loaded.seed)).toBe(true);
+  expect(loaded.loadWarnings).toEqual(
+    expect.arrayContaining(['Migrated version 0 save data to current schema.'])
+  );
+  await storage.deleteSave();
+});
+
 test('rejects future save schema versions, including numeric strings', async () => {
   const file = path.join(__dirname, 'tmp-save-future.json');
   const storage = new StorageService({ savePath: file });

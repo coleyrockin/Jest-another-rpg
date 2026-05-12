@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0
+
+- Added GitHub Actions CI for Node 18 and Node 20.
+- Added enforced Jest coverage gates for statements, lines, functions, and branches.
+- Added scripted smoke checks for CLI help, save, continue, delete, and campaign clear flows.
+- Expanded test coverage across game orchestration, combat, prompts, progression, storage, encounters, and compatibility adapters.
+- Bumped runtime support to Node `>=18`.
+- Added release checklist documentation for the portfolio-grade CLI release flow.
+
 ## 1.1.1
 
 - Added CLI `--help` output and testable option parsing.

@@ -9,7 +9,7 @@ test('levels up and applies class growth', () => {
     level: player.level,
     health: player.health,
     strength: player.strength,
-    agility: player.agility
+    agility: player.agility,
   };
 
   const outcome = progression.gainXp(player, player.xpToNext + 1, rng);

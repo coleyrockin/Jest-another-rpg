@@ -15,3 +15,28 @@ test('health reduction clamps at zero', () => {
   enemy.reduceHealth(99999);
   expect(enemy.health).toBe(0);
 });
+
+test('restores saved status effects', () => {
+  const enemy = Enemy.fromSave({
+    name: 'captain',
+    health: 40,
+    maxHealth: 100,
+    strength: 12,
+    agility: 8,
+    weapon: 'sword',
+    aiProfile: 'tactical',
+    level: 2,
+    statuses: [{ name: 'poisoned', duration: 2, intensity: 1 }],
+  });
+
+  expect(enemy.hasStatus('poisoned')).toBe(true);
+  expect(enemy.getStatus('poisoned').duration).toBe(2);
+});
+
+test('boss loot includes a guaranteed defender reward', () => {
+  const enemy = new Enemy({ name: 'captain', isBoss: true });
+  const drops = enemy.getLoot({ nextInt: () => 1 });
+
+  expect(drops.map((item) => item.id)).toContain('defender');
+  expect(drops).toHaveLength(2);
+});

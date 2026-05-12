@@ -11,7 +11,7 @@ test('saves and loads versioned payloads', async () => {
     player: { name: 'Test' },
     roundNumber: 1,
     activeEncounter: null,
-    quests: []
+    quests: [],
   });
 
   const loaded = await storage.loadGame();
@@ -33,7 +33,7 @@ test('persists rng snapshot for deterministic resume', async () => {
     player: { name: 'Test' },
     roundNumber: 4,
     activeEncounter: null,
-    quests: []
+    quests: [],
   });
 
   const loaded = await storage.loadGame();
@@ -51,7 +51,7 @@ test('migrates legacy saves without a schema version', async () => {
     roundNumber: 2,
     activeEncounter: null,
     quests: ['legacy-quest'],
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
 
   await fs.promises.writeFile(file, JSON.stringify(legacy, null, 2), 'utf8');
@@ -59,7 +59,9 @@ test('migrates legacy saves without a schema version', async () => {
 
   expect(loaded.version).toBe(1);
   expect(loaded.seed).toBe(77);
-  expect(loaded.loadWarnings).toEqual(expect.arrayContaining(['Migrated legacy save (no version) to current schema.']));
+  expect(loaded.loadWarnings).toEqual(
+    expect.arrayContaining(['Migrated legacy save (no version) to current schema.'])
+  );
   expect(loaded.quests).toEqual(['legacy-quest']);
 
   await storage.deleteSave();
@@ -72,7 +74,28 @@ test('throws recoverable error for corrupted JSON', async () => {
 
   await expect(storage.loadGame()).rejects.toMatchObject({
     message: 'Save file is corrupted: invalid JSON.',
-    recoverable: true
+    recoverable: true,
+  });
+
+  await storage.deleteSave();
+});
+
+test('rejects future save schema versions, including numeric strings', async () => {
+  const file = path.join(__dirname, 'tmp-save-future.json');
+  const storage = new StorageService({ savePath: file });
+  await fs.promises.writeFile(
+    file,
+    JSON.stringify({
+      version: '2',
+      seed: 77,
+      player: { name: 'Future Hero' },
+    }),
+    'utf8'
+  );
+
+  await expect(storage.loadGame()).rejects.toMatchObject({
+    message: 'Unsupported save file version',
+    recoverable: false,
   });
 
   await storage.deleteSave();

@@ -13,7 +13,7 @@ test('can continue a saved game from a persisted game state', async () => {
     seed: 123,
     storage,
     inquirer: starterInquirer,
-    quiet: true
+    quiet: true,
   });
   source.player = new Player('Sora', 'warrior', source.rng);
   source.currentEncounter = source.encounterService.nextEncounter(1, 1);
@@ -26,7 +26,7 @@ test('can continue a saved game from a persisted game state', async () => {
     seed: 999,
     storage,
     inquirer: nextInquirer,
-    quiet: true
+    quiet: true,
   });
   resumed.battleLoop = jest.fn(async () => {});
   await resumed.continueGame();
@@ -48,7 +48,7 @@ test('can recover from corrupted save after user confirmation', async () => {
     storage,
     seed: 321,
     inquirer: { prompt: jest.fn().mockResolvedValue({}) },
-    quiet: true
+    quiet: true,
   });
   game.player = new Player('Recover', 'mage', game.rng);
   game.currentEncounter = game.encounterService.nextEncounter(1, 1);
@@ -60,13 +60,13 @@ test('can recover from corrupted save after user confirmation', async () => {
   await fs.promises.writeFile(file, JSON.stringify(parsed, null, 2), 'utf8');
 
   const confirmInquirer = {
-    prompt: jest.fn().mockResolvedValue({ recoverSave: true })
+    prompt: jest.fn().mockResolvedValue({ recoverSave: true }),
   };
   const recoveringGame = new Game({
     storage,
     seed: 999,
     inquirer: confirmInquirer,
-    quiet: true
+    quiet: true,
   });
   recoveringGame.battleLoop = jest.fn(async () => {});
   await recoveringGame.continueGame();

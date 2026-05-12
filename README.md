@@ -1,93 +1,149 @@
-# Jest-another-rpg
+# Jest-Another-RPG
 
-CLI-first showcase RPG written in Node.js with deterministic gameplay, class progression, combat systems, save/load, and a modular architecture.
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white)
+![Jest](https://img.shields.io/badge/Jest-C21325?style=flat&logo=jest&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
 
-## What this repo now includes
+CLI-first RPG engine built with deterministic gameplay systems, class progression, combat services, inventory, quests, and resumable save files.
 
-- `lib/core`: deterministic RNG and shared foundational utilities.
-- `lib/domain`: character model, player/enemy domain entities, and item registry.
-- `lib/services`: combat, progression, encounters, and storage services.
-- `lib/ui`: prompt layouts for the CLI.
-- `lib/Game.js`: orchestration and battle loop only.
-- Jest tests for core systems.
+This started as a small Jest practice project. It is now structured like a real product core: domain models stay separate from services, the CLI is orchestration only, and important behavior is covered by deterministic tests.
 
-## Quick start
+## Quick Start
+
+Requirements:
+
+- Node.js `>=16`
+- npm
 
 ```bash
+git clone https://github.com/coleyrockin/Jest-another-rpg.git
+cd Jest-another-rpg
 npm install
 npm start
 ```
 
-Optional CLI arguments:
+Useful CLI flags:
 
-- `--seed=<number>` to force reproducible combat and encounter order.
-- `--quiet` to suppress rich console state cards.
-- `--pacing=detailed|quick` to pick output style.
+```bash
+npm start -- --seed=12345
+npm start -- --pacing=quick
+npm start -- --quiet
+npm start -- --help
+```
 
-## Gameplay loops
+## Current Features
 
-1. Start a new game and choose class:
-   - Warrior: higher strength and melee crit profile.
-   - Rogue: higher agility and dodge profile.
-   - Mage: balanced power, damage multiplier and magic passive.
-2. Battle flow:
-   - Turn order is computed each round from agility + RNG.
-   - Player actions: attack, use potion, save, or inspect status.
-   - Enemy AI profiles: aggressive, tactical, opportunist.
-3. Rewards:
-   - XP, loots, quest updates, and potential level-up.
-4. Persistence:
-   - Save at any point from main menu or battle.
-   - Continue from save for exact campaign resume.
+- Deterministic RNG with seed and snapshot restore support.
+- Three starter classes: Warrior, Rogue, and Mage.
+- Agility-based initiative, dodge checks, critical hits, mitigation, and status effects.
+- Enemy profiles for aggressive, tactical, and opportunist behavior.
+- Consumable inventory with health, strength, agility, cleanse, and defend effects.
+- Encounter progression with boss milestones and guaranteed boss reward drops.
+- Quest tracking for enemy defeats, boss clears, and no-damage streaks.
+- Versioned `savegame.json` with atomic writes, checksum validation, and legacy migration.
+- CLI help, input validation, quick/detailed pacing, and recoverable corrupt-save handling.
 
-## Save format
+## Gameplay Loop
 
-Saved files are written to `savegame.json` (created in the repo root):
+1. Start a new game.
+2. Name a character and choose a class.
+3. Fight generated encounters.
+4. Earn XP, loot, quest progress, and level-ups.
+5. Save during battle or from the main menu.
+6. Continue later with exact RNG continuity.
+
+## Class Matrix
+
+| Class   | Strength | Agility | Health | Style                                   |
+| ------- | -------: | ------: | -----: | --------------------------------------- |
+| Warrior |     High |  Medium |   High | Strong base hits and higher crit payoff |
+| Rogue   |   Medium |    High | Medium | Dodge-focused with faster initiative    |
+| Mage    |   Medium |  Medium | Medium | Higher attack scaling and burst profile |
+
+## Architecture
+
+```text
+app.js                  CLI entrypoint and option parsing
+lib/Game.js             Game orchestration and battle loop
+lib/core/Rng.js         Seeded RNG with snapshot/restore
+lib/domain/*            Character, player, enemy, class, and item models
+lib/services/combat.js  Pure combat resolution
+lib/services/encounter.js
+lib/services/progression.js
+lib/services/storage.js
+lib/ui/prompts.js       Inquirer prompt definitions
+```
+
+Compatibility shims remain at `lib/Character.js`, `lib/Player.js`, `lib/Enemy.js`, and `lib/Potion.js` for older tests/imports.
+
+## Save Schema
+
+Saves are written to `savegame.json` in the repo root and ignored by Git.
 
 ```json
 {
   "version": 1,
-  "seed": 123456,
+  "seed": 12345,
+  "rngState": {
+    "state": 67890,
+    "initialSeed": 12345
+  },
   "player": {
-    "name": "Name",
+    "name": "Ari",
     "className": "warrior",
     "level": 2,
-    "xp": 40,
-    "xpToNext": 190
+    "xp": 12,
+    "xpToNext": 203,
+    "inventory": []
   },
-  "roundNumber": 1,
-  "activeEncounter": {
-    "encounterId": "orc-2-minion",
-    "roundNumber": 2,
-    "isBoss": false,
-    "enemy": {
-      "...": "..."
-    }
-  }
+  "roundNumber": 2,
+  "activeEncounter": {},
+  "quests": [],
+  "updatedAt": "2026-05-12T00:00:00.000Z",
+  "timestamp": "2026-05-12T00:00:00.000Z",
+  "logHash": "sha256-checksum"
 }
 ```
 
-This schema is versioned (`version` field) and verified on load.
+Storage behavior:
+
+- Writes are atomic (`savegame.json.tmp` then rename).
+- `logHash` detects corrupted saves.
+- Legacy saves without a version migrate to schema version `1`.
+- Future versions are rejected instead of silently downgraded.
+- Corrupt saves offer a recoverable delete flow in the CLI.
 
 ## Scripts
 
-- `npm start` starts the CLI.
-- `npm test` runs Jest.
-- `npm run lint` runs ESLint.
-- `npm run format` formats with Prettier.
-- `npm run check` runs lint and tests together.
+```bash
+npm start        # run the CLI
+npm test         # run Jest tests
+npm run lint     # run ESLint
+npm run check    # lint + tests
+npm run format   # apply Prettier
+```
+
+Current quality gate:
+
+- 9 Jest suites.
+- Deterministic RNG tests.
+- Combat, progression, player, enemy, potion, storage, CLI, and integration tests.
+- `npm run check` is the release gate.
 
 ## Roadmap
 
+- Add durable equipment and a small shop.
 - Add map-level world progression.
-- Add shop and durable equipment system.
-- Add deterministic replay export from seeds.
-- Add narrative quests with branching outcomes.
+- Add replay export/import from seeds and RNG snapshots.
+- Add richer quest chains with class-specific rewards.
+- Add optional coverage thresholds once the system stabilizes.
 
-## Contributing
+## Contribution Rules
 
-This project is intentionally modular so new systems can be introduced with minimal coupling:
+- Keep domain state in `lib/domain`.
+- Keep deterministic logic in `lib/services`.
+- Keep CLI text and validation in `lib/ui/prompts.js`.
+- Keep `lib/Game.js` focused on orchestration.
+- Any save schema change must bump `CURRENT_SAVE_VERSION`, add migration coverage, and document the new fields.
 
-- Keep state mutation in orchestration (`Game`) and deterministic transformations in services.
-- Keep tests focused on `lib/core`, `lib/services`, and `lib/domain` modules.
-- Any save format changes must bump `version` in `StorageService` and include migration checks.
+Built by [Boyd Roberts](https://github.com/coleyrockin).

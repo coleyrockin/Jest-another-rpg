@@ -25,3 +25,14 @@ test('supports stack-aware quantity behavior', () => {
   expect(player.inventory).toHaveLength(1);
   expect(player.inventory[0].quantity).toBe(1);
 });
+
+test('persists unlocked progression flags', () => {
+  const player = new Player('Maya', 'warrior');
+  player.unlockedLevel3 = true;
+  player.unlockedLevel5 = true;
+
+  const restored = Player.fromSave(player.toSave());
+
+  expect(restored.unlockedLevel3).toBe(true);
+  expect(restored.unlockedLevel5).toBe(true);
+});

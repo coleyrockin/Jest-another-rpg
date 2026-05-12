@@ -1,16 +1,16 @@
-const Potion = require('../lib/Potion.js');
+const { createItem } = require('../lib/domain/items');
 
-test('creates a health potion object', () => {
-  const potion = new Potion('health');
+test('creates a named potion item', () => {
+  const potion = createItem('health');
 
-  expect(potion.name).toBe('health');
+  expect(potion.id).toBe('health');
   expect(potion.value).toEqual(expect.any(Number));
 });
 
-test('creates a random potion object', () => {
-  const potion = new Potion();
-
-  expect(potion.name).toEqual(expect.any(String));
-  expect(potion.name.length).toBeGreaterThan(0);
-  expect(potion.value).toEqual(expect.any(Number));
+test('creates a random potion item', () => {
+  const { createRandomItem } = require('../lib/domain/items');
+  const rng = { nextInt: () => 50 };
+  const potion = createRandomItem(rng);
+  expect(potion).toHaveProperty('id');
+  expect(potion).toHaveProperty('effect');
 });

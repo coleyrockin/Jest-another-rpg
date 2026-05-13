@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.1
+
+- Refreshed lockfile dependencies with `npm audit fix`.
+- Verified runtime dependency audit reports zero vulnerabilities.
+- Expanded README sections for screenshots, environment variables, deployment notes, known limitations, and security notes.
+- Added `.env` ignore coverage while allowing a safe `.env.example` if one is introduced later.
+
 ## 1.2.0
 
 - Added GitHub Actions CI for Node 18 and Node 20.

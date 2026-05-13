@@ -1,6 +1,6 @@
 {
   "name": "jest-another-rpg",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "CLI-first RPG engine with deterministic gameplay systems and save/load support",
   "main": "app.js",
   "scripts": {

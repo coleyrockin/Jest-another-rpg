@@ -32,6 +32,16 @@ npm start -- --quiet
 npm start -- --help
 ```
 
+## Environment Variables
+
+No environment variables are required for local development or gameplay.
+
+Security defaults:
+
+- Local saves are written to `savegame.json`, which is ignored by Git.
+- `.env` and `.env.*` files are ignored.
+- If environment variables are added later, commit only a safe `.env.example`.
+
 ## Current Features
 
 - Deterministic RNG with seed and snapshot restore support.
@@ -43,6 +53,29 @@ npm start -- --help
 - Quest tracking for enemy defeats, boss clears, and no-damage streaks.
 - Versioned `savegame.json` with atomic writes, checksum validation, and legacy migration.
 - CLI help, input validation, quick/detailed pacing, and recoverable corrupt-save handling.
+
+## Screenshots
+
+This is a terminal application, so screenshots are intentionally lightweight.
+
+```text
+Jest-Another-RPG
+
+Usage:
+  npm start -- [--seed=<number>] [--pacing=detailed|quick] [--quiet]
+
+Options:
+  --seed=<number>          Reproduce encounter and combat RNG.
+  --pacing=detailed|quick  Choose narration depth.
+  --quiet                  Suppress console narration.
+  --help, -h               Show this help.
+```
+
+Suggested portfolio screenshots:
+
+- Main menu with a saved game available.
+- Detailed battle status card with inventory and quests.
+- Campaign clear message after a seeded run.
 
 ## Gameplay Loop
 
@@ -153,6 +186,29 @@ Release steps:
 3. Commit release changes.
 4. Tag the release, for example `git tag v1.2.0`.
 5. Push `main` and the release tag.
+
+## Deployment Notes
+
+This project is a CLI app, not a hosted web service.
+
+- Run locally with `npm start`.
+- Validate releases with `npm run ci`.
+- GitHub Actions runs the same CI gate on `main` and pull requests.
+- There is no production server, database, or external API dependency.
+
+## Known Limitations
+
+- CLI-only experience; no browser UI is included.
+- Campaign content is intentionally compact for a portfolio MVP.
+- Save schema is currently version `1`; future schema changes require migrations.
+- Screenshots are terminal examples rather than hosted visual pages.
+
+## Security Notes
+
+- `npm audit --omit=dev` is part of the manual release audit.
+- Save files include an integrity hash to detect local corruption.
+- No credentials, tokens, or environment-specific config are required.
+- Runtime state files and environment files are excluded by `.gitignore`.
 
 ## Roadmap
 

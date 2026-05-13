@@ -1,4 +1,7 @@
 node_modules/
 coverage/
+.env
+.env.*
+!.env.example
 savegame.json
 savegame.json.tmp

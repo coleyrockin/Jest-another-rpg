@@ -15,8 +15,12 @@ test('saves and loads versioned payloads', async () => {
   });
 
   const loaded = await storage.loadGame();
-  expect(loaded.version).toBe(1);
+  expect(loaded.version).toBe(2);
   expect(loaded.player.name).toBe('Test');
+  expect(loaded.world).toEqual({
+    currentRegion: 'meadow-road',
+    discoveredRegions: ['meadow-road'],
+  });
   await storage.deleteSave();
   expect(fs.existsSync(file)).toBe(false);
 });
@@ -57,12 +61,16 @@ test('migrates legacy saves without a schema version', async () => {
   await fs.promises.writeFile(file, JSON.stringify(legacy, null, 2), 'utf8');
   const loaded = await storage.loadGame();
 
-  expect(loaded.version).toBe(1);
+  expect(loaded.version).toBe(2);
   expect(loaded.seed).toBe(77);
   expect(loaded.loadWarnings).toEqual(
     expect.arrayContaining(['Migrated legacy save (no version) to current schema.'])
   );
   expect(loaded.quests).toEqual(['legacy-quest']);
+  expect(loaded.world).toEqual({
+    currentRegion: 'meadow-road',
+    discoveredRegions: ['meadow-road'],
+  });
 
   await storage.deleteSave();
 });
@@ -140,7 +148,7 @@ test('migrates version zero saves with defaults', async () => {
 
   const loaded = await storage.loadGame();
 
-  expect(loaded.version).toBe(1);
+  expect(loaded.version).toBe(2);
   expect(Number.isFinite(loaded.seed)).toBe(true);
   expect(loaded.loadWarnings).toEqual(
     expect.arrayContaining(['Migrated version 0 save data to current schema.'])
@@ -154,7 +162,7 @@ test('rejects future save schema versions, including numeric strings', async () 
   await fs.promises.writeFile(
     file,
     JSON.stringify({
-      version: '2',
+      version: '999',
       seed: 77,
       player: { name: 'Future Hero' },
     }),

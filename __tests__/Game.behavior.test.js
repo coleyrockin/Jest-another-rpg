@@ -2,6 +2,7 @@ const Game = require('../lib/Game');
 const Player = require('../lib/domain/player');
 const Enemy = require('../lib/domain/enemy');
 const StorageService = require('../lib/services/storage');
+const { createItem } = require('../lib/domain/items');
 
 function createGame({ answers = [], storage, pacing = 'detailed' } = {}) {
   const logs = [];
@@ -197,7 +198,9 @@ test('battleLoop handles enemy turns, status ticks, win, and defeat', async () =
 });
 
 test('onEncounterWin grants loot, advances encounters, and ends campaign', async () => {
-  const { game, logs } = createGame();
+  const { game, logs } = createGame({
+    answers: [{ action: 'continue' }],
+  });
   game.player = new Player('Closer', 'warrior', game.rng);
   game.questState = [];
   game.currentEncounter = game.encounterService.nextEncounter(game.player.level, 1);
@@ -209,7 +212,57 @@ test('onEncounterWin grants loot, advances encounters, and ends campaign', async
   expect(logs.some((line) => line.startsWith('Loot gained:'))).toBe(true);
 
   game.roundNumber = game.encounterService.maxEncounters - 1;
+  game.currentEncounter = game.encounterService.nextEncounter(game.player.level, game.roundNumber);
   game.currentEncounter.enemy.reduceHealth(999);
   await expect(game.onEncounterWin()).resolves.toBe(false);
   expect(logs).toContain('You have cleared the campaign!');
+});
+
+test('adventureHub travels, rests, equips, shops, saves, and returns safely', async () => {
+  const { game, logs } = createGame({
+    answers: [
+      { action: 'travel' },
+      { regionId: 'old-quarry' },
+      { action: 'rest' },
+      { action: 'equip' },
+      { index: 2 },
+      { action: 'shop' },
+      { itemId: 'health' },
+      { action: 'status' },
+      { action: 'save' },
+    ],
+  });
+  game.player = new Player('Hub', 'warrior', game.rng);
+  game.player.health = game.player.maxHealth - 3;
+  game.player.gold = 50;
+  game.player.addItem(createItem('iron_sword'));
+  game.worldState = {
+    currentRegion: 'meadow-road',
+    discoveredRegions: ['meadow-road', 'old-quarry'],
+  };
+  game.saveCurrentProgress = jest.fn(async () => {});
+
+  await expect(game.adventureHub()).resolves.toBe(false);
+
+  expect(game.worldState.currentRegion).toBe('old-quarry');
+  expect(game.player.health).toBe(game.player.maxHealth);
+  expect(game.player.equipment.weapon.name).toBe('Iron Sword');
+  expect(game.player.inventory.some((item) => item.id === 'health')).toBe(true);
+  expect(game.saveCurrentProgress).toHaveBeenCalled();
+  expect(logs.some((line) => line.startsWith('Traveled to Old Quarry'))).toBe(true);
+});
+
+test('playerTurn excludes gear from potion choices', async () => {
+  const { game } = createGame({
+    answers: [{ action: 'potion' }, { index: 1 }],
+  });
+  game.player = new Player('Gearsafe', 'warrior', game.rng);
+  game.player.inventory = [createItem('iron_sword'), createItem('health')];
+  game.currentEncounter = { enemy: new Enemy({ name: 'Target', health: 100, rng: game.rng }) };
+
+  await expect(game.playerTurn()).resolves.toMatchObject({
+    action: 'potion',
+    message: 'Used Health Potion.',
+  });
+  expect(game.player.inventory.some((item) => item.id === 'iron_sword')).toBe(true);
 });

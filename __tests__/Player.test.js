@@ -1,4 +1,5 @@
 const Player = require('../lib/domain/player');
+const { createItem } = require('../lib/domain/items');
 
 test('creates a player with class and base inventory', () => {
   const player = new Player('Dave', 'rogue');
@@ -52,4 +53,36 @@ test('persists unlocked progression flags', () => {
 
   expect(restored.unlockedLevel3).toBe(true);
   expect(restored.unlockedLevel5).toBe(true);
+});
+
+test('supports gold, equipment modifiers, swaps, and save restore without double applying gear', () => {
+  const player = new Player('Maya', 'warrior');
+  player.inventory = [createItem('iron_sword'), createItem('ember_staff'), createItem('quarry_plate')];
+  const baseStrength = player.strength;
+  const baseHealth = player.maxHealth;
+
+  expect(player.addGold(30)).toBe(30);
+  expect(player.spendGold(12)).toBe(true);
+  expect(player.spendGold(999)).toBe(false);
+  expect(player.gold).toBe(18);
+
+  expect(player.equipItem(0).equipped).toBe(true);
+  expect(player.strength).toBe(baseStrength + 2);
+  expect(player.equipment.weapon.name).toBe('Iron Sword');
+
+  expect(player.equipItem(0).equipped).toBe(true);
+  expect(player.equipment.weapon.name).toBe('Ember Staff');
+  expect(player.inventory.some((item) => item.id === 'iron_sword')).toBe(true);
+  expect(player.strength).toBe(baseStrength + 1);
+
+  const armorIndex = player.inventory.findIndex((item) => item.id === 'quarry_plate');
+  expect(player.equipItem(armorIndex).equipped).toBe(true);
+  expect(player.maxHealth).toBe(baseHealth + 14);
+  expect(player.getEquipmentDefense()).toBe(1);
+
+  const restored = Player.fromSave(player.toSave());
+  expect(restored.strength).toBe(player.strength);
+  expect(restored.maxHealth).toBe(player.maxHealth);
+  expect(restored.equipment.weapon.name).toBe('Ember Staff');
+  expect(restored.equipment.armor.name).toBe('Quarry Plate');
 });

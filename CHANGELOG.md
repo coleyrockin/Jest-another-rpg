@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0
+
+- Started Adventure Mode with a between-battle hub for travel, rest, status review, help, and save-and-return.
+- Added three regions with unlock progression and region-specific encounter pools.
+- Added gold rewards, persistent equipment slots, regional shops, and gear-safe potion selection.
+- Added the first authored regional quest chain: `Find the Missing Scout`.
+- Bumped save schema to version `2` with v1 migration into persisted world state.
+- Extended status output with current region context.
+
 ## 1.2.1
 
 - Refreshed lockfile dependencies with `npm audit fix`.

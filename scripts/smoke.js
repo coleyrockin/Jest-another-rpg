@@ -77,7 +77,13 @@ async function smokeCampaignClear() {
     seed: 321,
     storage,
     quiet: true,
-    inquirer: scriptedInquirer([]),
+    inquirer: scriptedInquirer([
+      { action: 'continue' },
+      { action: 'continue' },
+      { action: 'continue' },
+      { action: 'continue' },
+      { action: 'continue' },
+    ]),
   });
   game.player = new Player('Closer', 'mage', game.rng);
   game.questState = [];

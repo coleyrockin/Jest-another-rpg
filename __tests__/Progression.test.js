@@ -65,3 +65,36 @@ test('quest progress grants rewards and resets no-hit streaks', () => {
     progression.applyQuestProgress(quests, { type: 'enemy_defeated', isBoss: true }, player)
   ).toEqual(['boss-tier']);
 });
+
+test('missing scout quest advances through regional objectives and grants reward', () => {
+  const player = new Player('Scout', 'rogue', new Rng(444));
+  const quests = progression.defaultQuests();
+  const scout = quests.find((quest) => quest.id === 'missing-scout');
+
+  expect(
+    progression.applyQuestProgress(
+      quests,
+      { type: 'region_traveled', regionId: 'old-quarry' },
+      player
+    )
+  ).toEqual([]);
+  expect(scout.progress).toBe(1);
+
+  progression.applyQuestProgress(
+    quests,
+    { type: 'enemy_defeated', regionId: 'old-quarry', isBoss: false },
+    player
+  );
+  expect(scout.progress).toBe(2);
+
+  expect(
+    progression.applyQuestProgress(
+      quests,
+      { type: 'enemy_defeated', regionId: 'ashen-gate', isBoss: true },
+      player
+    )
+  ).toEqual(expect.arrayContaining(['missing-scout']));
+  expect(scout.completed).toBe(true);
+  expect(player.gold).toBeGreaterThanOrEqual(45);
+  expect(player.inventory.some((item) => item.id === 'scout_charm')).toBe(true);
+});

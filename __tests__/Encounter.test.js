@@ -23,3 +23,12 @@ test('hydrates and serializes encounters safely', () => {
   expect(service.hydrateEncounter(null)).toBeNull();
   expect(service.serializeEncounter(null)).toBeNull();
 });
+
+test('generates region-specific encounter metadata', () => {
+  const service = new EncounterService(new Rng(789));
+  const encounter = service.nextEncounter(1, 2, 'old-quarry');
+
+  expect(encounter.regionId).toBe('old-quarry');
+  expect(encounter.regionName).toBe('Old Quarry');
+  expect(encounter.encounterId).toContain('old-quarry');
+});

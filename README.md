@@ -5,7 +5,7 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
 ![CI](https://github.com/coleyrockin/Jest-another-rpg/actions/workflows/ci.yml/badge.svg)
 
-CLI-first RPG engine built with deterministic gameplay systems, class progression, combat services, inventory, quests, and resumable save files.
+CLI-first RPG engine built with deterministic gameplay systems, class progression, combat services, inventory, quests, region travel, and resumable save files.
 
 This started as a small Jest practice project. It is now structured like a real product core: domain models stay separate from services, the CLI is orchestration only, and important behavior is covered by deterministic tests.
 
@@ -50,8 +50,11 @@ Security defaults:
 - Enemy profiles for aggressive, tactical, and opportunist behavior.
 - Consumable inventory with health, strength, agility, cleanse, and defend effects.
 - Encounter progression with boss milestones and guaranteed boss reward drops.
+- Adventure Mode with an intermission hub, rest action, region travel, equipment, and shops.
+- Three region identities: Meadow Road, Old Quarry, and Ashen Gate.
+- Gold rewards, purchasable consumables, and equipment slots for weapon, armor, and charm.
 - Quest tracking for enemy defeats, boss clears, and no-damage streaks.
-- Versioned `savegame.json` with atomic writes, checksum validation, and legacy migration.
+- Versioned `savegame.json` with atomic writes, checksum validation, and schema migration.
 - CLI help, input validation, quick/detailed pacing, and recoverable corrupt-save handling.
 
 ## Screenshots
@@ -83,8 +86,8 @@ Suggested portfolio screenshots:
 2. Name a character and choose a class.
 3. Fight generated encounters.
 4. Earn XP, loot, quest progress, and level-ups.
-5. Save during battle or from the main menu.
-6. Continue later with exact RNG continuity.
+5. Use the Adventure Hub to travel, rest, equip gear, visit shops, review status, or save.
+6. Continue later with exact RNG continuity and current region state.
 
 ## Class Matrix
 
@@ -105,6 +108,7 @@ lib/services/combat.js  Pure combat resolution
 lib/services/encounter.js
 lib/services/progression.js
 lib/services/storage.js
+lib/domain/region.js      Adventure regions and world-state helpers
 lib/ui/prompts.js       Inquirer prompt definitions
 ```
 
@@ -116,7 +120,7 @@ Saves are written to `savegame.json` in the repo root and ignored by Git.
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "seed": 12345,
   "rngState": {
     "state": 67890,
@@ -128,11 +132,21 @@ Saves are written to `savegame.json` in the repo root and ignored by Git.
     "level": 2,
     "xp": 12,
     "xpToNext": 203,
-    "inventory": []
+    "inventory": [],
+    "gold": 42,
+    "equipment": {
+      "weapon": null,
+      "armor": null,
+      "charm": null
+    }
   },
   "roundNumber": 2,
   "activeEncounter": {},
   "quests": [],
+  "world": {
+    "currentRegion": "meadow-road",
+    "discoveredRegions": ["meadow-road"]
+  },
   "updatedAt": "2026-05-12T00:00:00.000Z",
   "timestamp": "2026-05-12T00:00:00.000Z",
   "logHash": "sha256-checksum"
@@ -143,7 +157,8 @@ Storage behavior:
 
 - Writes are atomic (`savegame.json.tmp` then rename).
 - `logHash` detects corrupted saves.
-- Legacy saves without a version migrate to schema version `1`.
+- Legacy saves without a version migrate to schema version `2`.
+- Version `1` saves migrate into default Adventure Mode world state.
 - Future versions are rejected instead of silently downgraded.
 - Corrupt saves offer a recoverable delete flow in the CLI.
 
@@ -200,7 +215,7 @@ This project is a CLI app, not a hosted web service.
 
 - CLI-only experience; no browser UI is included.
 - Campaign content is intentionally compact for a portfolio MVP.
-- Save schema is currently version `1`; future schema changes require migrations.
+- Save schema is currently version `2`; future schema changes require migrations.
 - Screenshots are terminal examples rather than hosted visual pages.
 
 ## Security Notes
@@ -212,8 +227,8 @@ This project is a CLI app, not a hosted web service.
 
 ## Roadmap
 
-- Add durable equipment and a small shop.
-- Add map-level world progression.
+- Add deeper equipment comparison and sell-back support.
+- Add region-specific shop price tuning and rare stock.
 - Add replay export/import from seeds and RNG snapshots.
 - Add richer quest chains with class-specific rewards.
 - Add optional generated release notes.

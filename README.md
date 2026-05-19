@@ -57,27 +57,45 @@ Security defaults:
 - Versioned `savegame.json` with atomic writes, checksum validation, and schema migration.
 - CLI help, input validation, quick/detailed pacing, and recoverable corrupt-save handling.
 
-## Screenshots
+## Terminal Showcase
 
-This is a terminal application, so screenshots are intentionally lightweight.
+This is a terminal application, so the best portfolio screenshots are terminal transcripts.
 
 ```text
-Jest-Another-RPG
++ Jest-Another-RPG Status --------------------------------+
+| Hero   Ari the Warrior | Lvl 1                          |
+| HP     [############] 100/100 | XP [..........] 0/55    |
+| Stats  STR 15 | AGI 8 | Gold 76g                        |
+| World  Old Quarry (Medium)                              |
+| Enemy  Orc Miner | HP [##########] 113/113              |
+| Gear   Weapon: Iron Sword | Armor: empty | Charm: empty |
+| Bag    Health Potion x2                                 |
+| Quests 0/4 complete                                     |
+| - Defeat 2 random enemies: 0/2                          |
+| - Survive a boss encounter: 0/1                         |
+| - Avoid taking damage for 3 consecutive rounds: 0/3     |
+| - Find the Missing Scout: 0/3                           |
++---------------------------------------------------------+
+Region detail: Old Quarry (Medium) - A broken mine road where raiders and restless bones gather.
 
-Usage:
-  npm start -- [--seed=<number>] [--pacing=detailed|quick] [--quiet]
+Adventure Hub - Old Quarry
+  Continue to next encounter
+  Travel
+  Rest
+  Equip gear
+  Visit shop
 
-Options:
-  --seed=<number>          Reproduce encounter and combat RNG.
-  --pacing=detailed|quick  Choose narration depth.
-  --quiet                  Suppress console narration.
-  --help, -h               Show this help.
+Shop: Bought Health Potion for 12g.
+Gear: Equipped Iron Sword.
+Campaign clear: You have cleared the campaign!
 ```
 
 Suggested portfolio screenshots:
 
 - Main menu with a saved game available.
-- Detailed battle status card with inventory and quests.
+- Detailed battle status card with region, gear, inventory, and quests.
+- Adventure Hub showing travel, rest, equipment, shop, and save options.
+- Shop/equipment transcript after a seeded run.
 - Campaign clear message after a seeded run.
 
 ## Gameplay Loop
@@ -109,6 +127,7 @@ lib/services/encounter.js
 lib/services/progression.js
 lib/services/storage.js
 lib/domain/region.js      Adventure regions and world-state helpers
+lib/services/shop.js      Regional shop and purchase rules
 lib/ui/prompts.js       Inquirer prompt definitions
 ```
 
@@ -169,6 +188,7 @@ npm start        # run the CLI
 npm test         # run Jest tests
 npm run coverage # run Jest with enforced coverage gates
 npm run smoke    # run scripted CLI/product smoke checks
+npm run transcript # print deterministic terminal showcase output
 npm run lint     # run ESLint
 npm run check    # lint + tests
 npm run ci       # lint + tests + coverage + smoke
@@ -177,7 +197,7 @@ npm run format   # apply Prettier
 
 Current quality gate:
 
-- 15 Jest suites.
+- 17 Jest suites.
 - Deterministic RNG tests.
 - Combat, progression, player, enemy, potion, storage, CLI, and integration tests.
 - Coverage thresholds: `75%` statements, `75%` lines, `70%` functions, `65%` branches.
@@ -199,7 +219,7 @@ Release steps:
 1. Confirm version and changelog are updated.
 2. Confirm `main` is aligned with `origin/main`.
 3. Commit release changes.
-4. Tag the release, for example `git tag v1.2.0`.
+4. Tag the release, for example `git tag v1.3.0`.
 5. Push `main` and the release tag.
 
 ## Deployment Notes

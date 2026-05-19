@@ -8,6 +8,7 @@
     "test": "jest --runInBand",
     "coverage": "jest --coverage --runInBand",
     "smoke": "node scripts/smoke.js",
+    "transcript": "node scripts/transcript.js",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
     "check": "npm run lint && npm test",

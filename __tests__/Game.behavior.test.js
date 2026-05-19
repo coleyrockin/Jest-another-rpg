@@ -134,15 +134,15 @@ test('status cards render detailed, quick, empty inventory, and complete quests'
 
   game.showStateCard();
 
-  expect(logs).toContain('Inventory: empty');
-  expect(logs).toContain(`Quests: ${game.questState.length}/${game.questState.length} complete`);
+  expect(logs.some((line) => line.includes('Bag    empty'))).toBe(true);
+  expect(logs.some((line) => line.includes(`Quests ${game.questState.length}/${game.questState.length} complete`))).toBe(true);
 
   const quick = createGame({ pacing: 'quick' });
   quick.game.player = new Player('Quick', 'mage', quick.game.rng);
   quick.game.currentEncounter = { enemy: new Enemy({ name: 'Scout', rng: quick.game.rng }) };
   quick.game.showStateCard();
 
-  expect(quick.logs.some((line) => line.startsWith('HP '))).toBe(true);
+  expect(quick.logs.some((line) => line.startsWith('['))).toBe(true);
   expect(quick.logs.some((line) => line.startsWith('Quests '))).toBe(true);
 });
 
@@ -249,7 +249,7 @@ test('adventureHub travels, rests, equips, shops, saves, and returns safely', as
   expect(game.player.equipment.weapon.name).toBe('Iron Sword');
   expect(game.player.inventory.some((item) => item.id === 'health')).toBe(true);
   expect(game.saveCurrentProgress).toHaveBeenCalled();
-  expect(logs.some((line) => line.startsWith('Traveled to Old Quarry'))).toBe(true);
+  expect(logs.some((line) => line.startsWith('Travel complete: Old Quarry'))).toBe(true);
 });
 
 test('playerTurn excludes gear from potion choices', async () => {

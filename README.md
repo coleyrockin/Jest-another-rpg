@@ -60,6 +60,7 @@ Security defaults:
 ## Terminal Showcase
 
 This is a terminal application, so the best portfolio screenshots are terminal transcripts.
+The example below is generated with `npm run transcript`.
 
 ```text
 + Jest-Another-RPG Status --------------------------------+
@@ -197,7 +198,7 @@ npm run format   # apply Prettier
 
 Current quality gate:
 
-- 17 Jest suites.
+- Jest suites cover CLI flow, combat, progression, storage, terminal presentation, shops, regions, and compatibility adapters.
 - Deterministic RNG tests.
 - Combat, progression, player, enemy, potion, storage, CLI, and integration tests.
 - Coverage thresholds: `75%` statements, `75%` lines, `70%` functions, `65%` branches.

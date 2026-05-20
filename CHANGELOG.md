@@ -4,6 +4,7 @@
 
 - Added direct coverage for terminal formatting helpers.
 - Documented the CLI visual polish pass with deterministic transcript support.
+- Made README quality-gate wording drift-resistant by removing exact Jest suite counts.
 
 ## 1.3.0
 

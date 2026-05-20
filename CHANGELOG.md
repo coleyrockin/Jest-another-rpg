@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added direct coverage for terminal formatting helpers.
+- Documented the CLI visual polish pass with deterministic transcript support.
+
 ## 1.3.0
 
 - Started Adventure Mode with a between-battle hub for travel, rest, status review, help, and save-and-return.

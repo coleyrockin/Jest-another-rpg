@@ -32,6 +32,20 @@ npm start -- --quiet
 npm start -- --help
 ```
 
+## Project status
+
+- Current release: `1.3.0`.
+- Scope: CLI-only RPG portfolio core with deterministic progression and save support.
+- Roadmap state: see [ROADMAP.md](ROADMAP.md) for executable next-agent priorities.
+
+## Tech stack
+
+- Node.js >= 18
+- JavaScript (CommonJS)
+- Inquirer (CLI prompts)
+- Jest (unit/integration testing)
+- ESLint / Prettier (lint and formatting)
+
 ## Environment Variables
 
 No environment variables are required for local development or gameplay.
@@ -212,6 +226,7 @@ Run these before tagging a release:
 npm run format
 npm run ci
 npm start -- --help
+npm audit --omit=dev
 git status --short --branch
 ```
 
@@ -232,6 +247,11 @@ This project is a CLI app, not a hosted web service.
 - GitHub Actions runs the same CI gate on `main` and pull requests.
 - There is no production server, database, or external API dependency.
 
+## Demo and deployment links
+
+- Demo: no hosted deployment (CLI project).
+- Deployment: local runtime only.
+
 ## Known Limitations
 
 - CLI-only experience; no browser UI is included.
@@ -248,11 +268,11 @@ This project is a CLI app, not a hosted web service.
 
 ## Roadmap
 
-- Add deeper equipment comparison and sell-back support.
-- Add region-specific shop price tuning and rare stock.
-- Add replay export/import from seeds and RNG snapshots.
-- Add richer quest chains with class-specific rewards.
-- Add optional generated release notes.
+- Planned features and execution order are tracked in [ROADMAP.md](ROADMAP.md).
+
+- Shipped major milestones:
+  - v1.2.0 CLI quality and CI hardening.
+  - v1.3.0 Adventure Mode, region travel, gear/equipment, shop, quests, and schema v2 saves.
 
 ## Contribution Rules
 
